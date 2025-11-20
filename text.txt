@@ -1,0 +1,74 @@
+GOOS=windows GOARCH=amd64 go build -o server.exe cmd/server/main.go 
+
+smbclient //192.168.100.84/r -N -c "put server.exe"        
+
+curl -X POST http://192.168.100.84:8080/print-ticket \             
+  -H "Content-Type: application/json" \
+  -d '{
+  "ticket_id": "c14da83e-36d1-4a28-8ce2-6bebab4a18cb",
+  "shift_id": "c363d327-d777-4727-83a3-1cef84747664", 
+  "queue_number": 3,
+  "queue_display": "K-003",
+  "status": "waiting",
+  "notes": "Yurak og'rig'i bilan kelgan",
+  "is_priority": true,
+  "priority_reason": "70 yoshdan oshgan",
+  "created_at": "2025-11-19 15:08:16.530089"
+}'  
+
+
+curl -X POST http://192.168.100.84:8085/print-ticket \             
+  -H "Content-Type: application/json" \
+  -d '{
+  "ticket_id": "12345",
+  "shift_id": "shift-001",
+  "queue_number": 5,
+  "queue_display": "K-005", 
+  "status": "waiting",
+  "is_priority": true,
+  "priority_reason": "70+ yosh",
+  "notes": "Yurak ogrigi",
+  "created_at": "2024-01-15 10:30:00"
+}'  
+
+
+{
+  "ticket_id": "12345",
+  "shift_id": "shift-001",
+  "queue_number": 5,
+  "queue_display": "K-005", 
+  "status": "waiting",
+  "is_priority": true,
+  "priority_reason": "70+ yosh",
+  "notes": "Yurak ogrigi",
+  "created_at": "2024-01-15 10:30:00"
+}
+
+// Javob (Response):
+{
+  "status": "success",
+  "message": "Chipta muvaffaqiyatli chop etildi",
+  "printer": "POS80",
+  "bytes": 245,
+  "ticket": "K-005",
+  "priority": true,
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "ticket_id": "12345",
+    "queue_display": "K-005",
+    "status": "waiting",
+    "is_priority": true,
+    "created_at": "2024-01-15 10:30:00"
+  }
+}
+
+
+
+
+
+smbclient //192.168.100.84/r -N -c "get text.txt"  windowsdan ubuntuga fayl yuklash
+smbclient //192.168.100.84/r -N -c "put server.exe" ubuntudan windowsga fayl upload qilish
+
+GOOS=windows GOARCH=amd64 go build -o server.exe cmd/server/main.go
+
+

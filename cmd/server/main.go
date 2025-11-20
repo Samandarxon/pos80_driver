@@ -1,0 +1,86 @@
+package main
+
+import (
+	"log"
+	"pos80/internal/api"
+	"pos80/internal/config"
+
+	"github.com/gin-gonic/gin"
+)
+
+// ============================================
+// ASOSIY DASTUR (MAIN APPLICATION)
+// ============================================
+
+// main - dasturning kirish nuqtasi (entry point)
+// Bu yerda barcha komponentlar birlashtiriladi va server ishga tushiriladi
+func main() {
+	// ==============================
+	// DASTURNI ISHGA TUSHIRISH BOSQICHLARI
+	// ==============================
+
+	// 1. KONFIGURATSIYA YUKLASH
+	// Dastur sozlamalari environment va konstantalardan yuklanadi
+	log.Printf("📋 Konfiguratsiya yuklanmoqda...")
+
+	// 2. SERVISLARNI YARATISH
+	// Print va Health handlerlarini ishga tushirish
+	printHandler := api.NewPrintHandler(config.DefaultPrinterName)
+	healthHandler := api.NewHealthHandler(config.DefaultPrinterName)
+
+	log.Printf("✅ Servislar yaratildi")
+
+	// 3. ROUTER (YO'NALTIRGICH) SOZLASH
+	// Gin framework orqali HTTP router konfiguratsiyasi
+	router := gin.New()
+
+	// ==============================
+	// MIDDLEWARE LARNI O'RNATISH
+	// ==============================
+
+	// Logging middleware - barcha so'rovlarni log qilish
+	router.Use(api.LoggingMiddleware())
+
+	// CORS middleware - brauzer cross-origin so'rovlariga ruxsat berish
+	router.Use(api.CORSMiddleware())
+
+	// Recovery middleware - dastur xatosiz ishlashini ta'minlash
+	router.Use(gin.Recovery())
+
+	log.Printf("🔧 Middleware lar o'rnatildi")
+
+	// ==============================
+	// API ROUTE LARNI BELGILASH
+	// ==============================
+
+	// Health check endpoint - sistemaning holatini tekshirish
+	router.GET("/health", healthHandler.CheckHealth)
+
+	// Asosiy chipta chop etish endpoint
+	router.POST("/print-ticket", printHandler.HandlePrintTicket)
+
+	// Test chipta chop etish endpoint
+	router.POST("/print-test", printHandler.PrintTestTicket)
+
+	log.Printf("🌐 API route lar belgilandi")
+
+	// ==============================
+	// SERVERNI ISHGA TUSHIRISH
+	// ==============================
+
+	// Dastur haqida ma'lumot chiqarish
+	log.Printf("🚀 %s v%s ishga tushmoqda...", config.AppName, config.AppVersion)
+	log.Printf("📍 Server manzili: http://0.0.0.0%s", config.ServicePort)
+	log.Printf("🖨️  Default printer: %s", config.DefaultPrinterName)
+	log.Printf("💻 Platforma: Windows")
+	log.Printf("📊 Rejim: Production")
+
+	// Serverni ishga tushirish
+	// Agar port band bo'lsa yoki boshqa xatolik yuz bersa, dastur to'xtaydi
+	if err := router.Run(config.ServicePort); err != nil {
+		log.Fatalf("❌ Serverni ishga tushirib bo'lmadi: %v", err)
+	}
+
+	// Server ishlashni boshlagandan so'ng, ushbu kodga hech qachon yetib kelmaydi
+	// Chunki router.Run() blokirovka qiluvchi metod
+}
