@@ -23,46 +23,13 @@ func main() {
 	// Dastur sozlamalari environment va konstantalardan yuklanadi
 	log.Printf("📋 Konfiguratsiya yuklanmoqda...")
 
-	// 2. SERVISLARNI YARATISH
-	// Print va Health handlerlarini ishga tushirish
-	printHandler := api.NewPrintHandler(config.DefaultPrinterName)
-	healthHandler := api.NewHealthHandler(config.DefaultPrinterName)
-
 	log.Printf("✅ Servislar yaratildi")
 
 	// 3. ROUTER (YO'NALTIRGICH) SOZLASH
 	// Gin framework orqali HTTP router konfiguratsiyasi
 	router := gin.New()
 
-	// ==============================
-	// MIDDLEWARE LARNI O'RNATISH
-	// ==============================
-
-	// Logging middleware - barcha so'rovlarni log qilish
-	router.Use(api.LoggingMiddleware())
-
-	// CORS middleware - brauzer cross-origin so'rovlariga ruxsat berish
-	router.Use(api.CORSMiddleware())
-
-	// Recovery middleware - dastur xatosiz ishlashini ta'minlash
-	router.Use(gin.Recovery())
-
-	log.Printf("🔧 Middleware lar o'rnatildi")
-
-	// ==============================
-	// API ROUTE LARNI BELGILASH
-	// ==============================
-
-	// Health check endpoint - sistemaning holatini tekshirish
-	router.GET("/health", healthHandler.CheckHealth)
-
-	// Asosiy chipta chop etish endpoint
-	router.POST("/print-ticket", printHandler.HandlePrintTicket)
-
-	// Test chipta chop etish endpoint
-	router.POST("/print-test", printHandler.PrintTestTicket)
-
-	log.Printf("🌐 API route lar belgilandi")
+	api.SetupRouter(router)
 
 	// ==============================
 	// SERVERNI ISHGA TUSHIRISH
