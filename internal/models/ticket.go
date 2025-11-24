@@ -6,7 +6,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -22,39 +21,43 @@ type PrintRequest struct {
 	// Misol: "c14da83e-36d1-4a28-8ce2-6bebab4a18cb"
 	TicketID string `json:"ticket_id" binding:"required"`
 
-	// ShiftID - smena yoki ish vaqtining identifikatori
-	// Har bir smenada navbat raqamlari 1 dan boshlanadi
-	// Misol: "c363d327-d777-4727-83a3-1cef84747664"
-	ShiftID string `json:"shift_id" binding:"required"`
+	// // ShiftID - smena yoki ish vaqtining identifikatori
+	// // Har bir smenada navbat raqamlari 1 dan boshlanadi
+	// // Misol: "c363d327-d777-4727-83a3-1cef84747664"
+	// ShiftID string `json:"shift_id" binding:"required"`
+
+	DoctorId string `json:"doctor_id" binding:"required"`
+
+	RoomNumber string `json:"room_number" binding:"required"`
 
 	// QueueNumber - navbatning raqamli ko'rinishi
 	// Har kuni har bir bo'limda 1 dan boshlanadi
 	// binding:"required,min=1" - majburiy va 1 dan kichik bo'lmasligi kerak
-	QueueNumber int `json:"queue_number" binding:"required,min=1"`
+	QueueNumber string `json:"queue_number" binding:"required,min=1"`
 
 	// QueueDisplay - ekranda ko'rsatiladigan format
 	// Format: "K-001", "T-015", "X-042"
 	// K - Kardiologiya, T - Terapiya, X - Xirurgiya
-	QueueDisplay string `json:"queue_display" binding:"required"`
+	DepartmentName string `json:"department_name" binding:"required"`
 
 	// Status - navbatning joriy holati
 	// Mumkin bo'lgan holatlar: waiting, called, in_progress, completed, cancelled
 	Status string `json:"status" binding:"required"`
 
-	// Notes - qo'shimcha eslatmalar yoki bemor haqida ma'lumot
-	// Ixtiyoriy maydon - bo'sh bo'lishi mumkin
-	// Misol: "Yurak og'rig'i bilan kelgan", "Allergiya tarixi bor"
-	Notes string `json:"notes"`
+	// // Notes - qo'shimcha eslatmalar yoki bemor haqida ma'lumot
+	// // Ixtiyoriy maydon - bo'sh bo'lishi mumkin
+	// // Misol: "Yurak og'rig'i bilan kelgan", "Allergiya tarixi bor"
+	// Notes string `json:"notes"`
 
-	// IsPriority - navbat ustuvorligi holati
-	// true - ustuvor navbat (nogironlar, homilador ayollar, qariyalar)
-	// false - oddiy navbat
-	IsPriority bool `json:"is_priority"`
+	// // IsPriority - navbat ustuvorligi holati
+	// // true - ustuvor navbat (nogironlar, homilador ayollar, qariyalar)
+	// // false - oddiy navbat
+	// IsPriority bool `json:"is_priority"`
 
-	// PriorityReason - ustuvorlik sababi
-	// IsPriority true bo'lgina talab qilinadi
-	// Misol: "70 yoshdan oshgan", "Nogironligi bor", "Homilador ayol"
-	PriorityReason string `json:"priority_reason"`
+	// // PriorityReason - ustuvorlik sababi
+	// // IsPriority true bo'lgina talab qilinadi
+	// // Misol: "70 yoshdan oshgan", "Nogironligi bor", "Homilador ayol"
+	// PriorityReason string `json:"priority_reason"`
 
 	// CreatedAt - chipta yaratilgan vaqt
 	// Format: ISO 8601 (RFC3339) - "2025-01-18T14:30:00Z"
@@ -97,9 +100,9 @@ type PrintResponse struct {
 	// Misol: "K-003", "T-099"
 	Ticket string `json:"ticket,omitempty"`
 
-	// Priority - chiptaning ustuvorlik holati
-	// Frontend ga qaysi chiptalar ustuvor ekanligini ko'rsatish uchun
-	Priority bool `json:"priority,omitempty"`
+	// // Priority - chiptaning ustuvorlik holati
+	// // Frontend ga qaysi chiptalar ustuvor ekanligini ko'rsatish uchun
+	// Priority bool `json:"priority,omitempty"`
 
 	// Timestamp - javob yuborilgan vaqt
 	// Format: ISO 8601 (RFC3339) - "2025-01-18T14:35:22Z"
@@ -142,33 +145,33 @@ type DocInfo1W struct {
 
 // Validate - PrintRequest ni qo'shimcha validatsiya qilish
 // Gin binding dan tashqari business logic validatsiyasi
-func (pr *PrintRequest) Validate() error {
-	// QueueDisplay formatini tekshirish
-	// Format: "X-XXX" harf, chiziqcha, raqam
-	if len(pr.QueueDisplay) < 3 {
-		return fmt.Errorf("QueueDisplay formati noto'g'ri")
-	}
+// func (pr *PrintRequest) Validate() error {
+// 	// QueueDisplay formatini tekshirish
+// 	// Format: "X-XXX" harf, chiziqcha, raqam
+// 	if len(pr.QueueDisplay) < 3 {
+// 		return fmt.Errorf("QueueDisplay formati noto'g'ri")
+// 	}
 
-	// Status ni tekshirish
-	validStatuses := map[string]bool{
-		"waiting":     true,
-		"called":      true,
-		"in_progress": true,
-		"completed":   true,
-		"cancelled":   true,
-		"missed":      true,
-	}
-	if !validStatuses[pr.Status] {
-		return fmt.Errorf("Noto'g'ri status: %s", pr.Status)
-	}
+// 	// Status ni tekshirish
+// 	validStatuses := map[string]bool{
+// 		"waiting":     true,
+// 		"called":      true,
+// 		"in_progress": true,
+// 		"completed":   true,
+// 		"cancelled":   true,
+// 		"missed":      true,
+// 	}
+// 	if !validStatuses[pr.Status] {
+// 		return fmt.Errorf("Noto'g'ri status: %s", pr.Status)
+// 	}
 
-	// Agar ustuvor bo'lsa, sabab kiritilganligini tekshirish
-	if pr.IsPriority && pr.PriorityReason == "" {
-		return fmt.Errorf("Ustuvor navbat uchun sabab kiritilishi shart")
-	}
+// 	// Agar ustuvor bo'lsa, sabab kiritilganligini tekshirish
+// 	if pr.IsPriority && pr.PriorityReason == "" {
+// 		return fmt.Errorf("Ustuvor navbat uchun sabab kiritilishi shart")
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // ToResponse - PrintRequest dan PrintResponse yaratish
 // Chop etish muvaffaqiyatli bo'lganda ishlatiladi
@@ -178,14 +181,12 @@ func (pr *PrintRequest) ToResponse(printerName string, bytesWritten int) PrintRe
 		Message:   "Chipta muvaffaqiyatli chop etildi",
 		Printer:   printerName,
 		Bytes:     bytesWritten,
-		Ticket:    pr.QueueDisplay,
-		Priority:  pr.IsPriority,
+		Ticket:    pr.QueueNumber,
 		Timestamp: time.Now().Format(time.RFC3339),
 		Data: map[string]interface{}{
 			"ticket_id":     pr.TicketID,
-			"queue_display": pr.QueueDisplay,
+			"queue_display": pr.QueueNumber,
 			"status":        pr.Status,
-			"is_priority":   pr.IsPriority,
 			"created_at":    pr.CreatedAt,
 		},
 	}

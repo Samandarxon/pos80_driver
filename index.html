@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer Test - Chipta Chop Etish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-reset {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .response.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .response h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .response pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🖨️ Printer Test</h1>
+        <p class="subtitle">Shifoxona navbat chiptalari chop etish tizimi</p>
+
+        <!-- Server konfiguratsiyasi -->
+        <div class="config-section">
+            <h3>⚙️ Server Sozlamalari</h3>
+            <div class="form-group">
+                <label>Server URL:</label>
+                <input type="text" id="serverUrl" value="http://192.168.100.86:8080/print-ticket">
+            </div>
+            <div class="form-group">
+                <label>API Key:</label>
+                <input type="text" id="apiKey"
+                    value="SECRET-PRINTER-KEY-b21ecca4618d929c6f24e0f7245ca7b50740f6509e455f3b1c165d70">
+            </div>
+        </div>
+
+        <!-- Chipta ma'lumotlari -->
+        <form id="printForm">
+            <div class="row">
+                <div class="form-group">
+                    <label>Ticket ID:</label>
+                    <input type="text" id="ticketId" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Xona raqami:</label>
+                    <input type="text" id="roomNumber" value="101" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Bo'lim nomi:</label>
+                <input type="text" id="departmentName" value="Cardiology" required>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label>Navbat raqami:</label>
+                    <input type="text" id="queueNumber" value="A-101" required>
+                </div>
+                <div class="form-group">
+                    <label>Shifokor ID:</label>
+                    <input type="text" id="doctorId" value="1" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Sana va vaqt:</label>
+                <input type="text" id="createdAt" value="Noyabr 24, 2025, 14:30:00" required>
+            </div>
+
+            <div class="form-group">
+                <label>Holat:</label>
+                <select id="status" required>
+                    <option value="waiting">Kutmoqda</option>
+                    <option value="called">Chaqirildi</option>
+                    <option value="in_progress">Qabulda</option>
+                    <option value="completed">Yakunlandi</option>
+                    <option value="cancelled">Bekor qilindi</option>
+                    <option value="missed">Kelmadi</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-print">🖨️ Chop Etish</button>
+                <button type="button" class="btn-reset" onclick="resetForm()">🔄 Tozalash</button>
+            </div>
+        </form>
+
+        <!-- Loader -->
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Yuborilmoqda...</p>
+        </div>
+
+        <!-- Javob -->
+        <div class="response" id="response"></div>
+    </div>
+
+    <script>
+        // Formani yuborish
+        document.getElementById('printForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const loader = document.getElementById('loader');
+            const response = document.getElementById('response');
+            const serverUrl = document.getElementById('serverUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+            // Ma'lumotlarni to'plash
+            const data = {
+                ticket_id: document.getElementById('ticketId').value,
+                room_number: document.getElementById('roomNumber').value,
+                department_name: document.getElementById('departmentName').value,
+                queue_number: document.getElementById('queueNumber').value,
+                doctor_id: document.getElementById('doctorId').value,
+                created_at: document.getElementById('createdAt').value,
+                status: document.getElementById('status').value
+            };
+
+            // UI yangilash
+            loader.classList.add('active');
+            response.style.display = 'none';
+
+            try {
+                const res = await fetch(serverUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                // Javobni ko'rsatish
+                loader.classList.remove('active');
+                response.className = 'response ' + (res.ok ? 'success' : 'error');
+                response.innerHTML = `
+                    <h3>${res.ok ? '✅ Muvaffaqiyatli!' : '❌ Xatolik!'}</h3>
+                    <p><strong>Status:</strong> ${result.status || 'N/A'}</p>
+                    <p><strong>Xabar:</strong> ${result.message || result.error || 'Ma\'lumot yo\'q'}</p>
+                    ${result.ticket ? `<p><strong>Chipta:</strong> ${result.ticket}</p>` : ''}
+                    ${result.bytes ? `<p><strong>Baytlar:</strong> ${result.bytes}</p>` : ''}
+                    <details>
+                        <summary style="cursor: pointer; margin-top: 10px;">To'liq javob ko'rish</summary>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </details>
+                `;
+
+                // Konsolga chiqarish
+                console.log('Javob:', result);
+
+            } catch (error) {
+                loader.classList.remove('active');
+                response.className = 'response error';
+                response.innerHTML = `
+                    <h3>❌ Xatolik yuz berdi!</h3>
+                    <p><strong>Xabar:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+                console.error('Xatolik:', error);
+            }
+        });
+
+        // Formani tozalash
+        function resetForm() {
+            document.getElementById('printForm').reset();
+            document.getElementById('response').style.display = 'none';
+
+            // Default qiymatlarni qayta o'rnatish
+            document.getElementById('ticketId').value = '1';
+            document.getElementById('roomNumber').value = '101';
+            document.getElementById('departmentName').value = 'Cardiology';
+            document.getElementById('queueNumber').value = 'A-101';
+            document.getElementById('doctorId').value = '1';
+            document.getElementById('createdAt').value = 'Noyabr 24, 2025, 14:30:00';
+            document.getElementById('status').value = 'waiting';
+        }
+
+        // Hozirgi sanani o'rnatish funksiyasi
+        function setCurrentDate() {
+            const now = new Date();
+            const months = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+                'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'];
+            const formatted = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            document.getElementById('createdAt').value = formatted;
+        }
+
+        // Sahifa yuklanganda hozirgi sanani o'rnatish
+        // setCurrentDate(); // Agar kerak bo'lsa, comment'dan chiqaring
+    </script>
+</body>
+
+</html>

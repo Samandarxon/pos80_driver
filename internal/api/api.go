@@ -3,44 +3,48 @@ package api
 import (
 	"log"
 	"pos80/internal/api/handlers"
+	"pos80/internal/audio"
 	"pos80/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(router *gin.Engine) {
+func SetupRouter(router *gin.Engine, audioService *audio.AudioService, audioQueue *audio.AudioQueueService) {
 
-	// 2. SERVISLARNI YARATISH
-	// Print va Health handlerlarini ishga tushirish
 	printHandler := handlers.NewPrintHandler(config.DefaultPrinterName)
 
+	// ⚠️ AudioHandler ga audioQueue ni uzatamiz (audioService emas!)
+	audioHandler := handlers.NewAudioHandlerWithQueue(audioQueue)
+
 	// ==============================
-	// MIDDLEWARE LARNI O'RNATISH
+	// GLOBAL MIDDLEWARE (tartib muhim!)
 	// ==============================
 
-	// Logging middleware - barcha so'rovlarni log qilish
-	router.Use(handlers.PrintGuardMiddleware())
-
-	// CORS middleware - brauzer cross-origin so'rovlariga ruxsat berish
-	router.Use(handlers.CORSMiddleware())
-
-	// Recovery middleware - dastur xatosiz ishlashini ta'minlash
-	router.Use(gin.Recovery())
+	router.Use(gin.Recovery())  // 1. Panic recovery
+	router.Use(handlers.Cors()) // 2. CORS (birinchi bo'lishi kerak!)
 
 	log.Printf("🔧 Middleware lar o'rnatildi")
 
 	// ==============================
-	// API ROUTE LARNI BELGILASH
+	// PUBLIC ROUTES (API Key'siz)
+	router.GET("/api/audio/play", audioHandler.HandlePlayAudio)
+	router.POST("/api/audio/announcement", audioHandler.HandleAudioAnnouncement)
 	// ==============================
 
-	// Health check endpoint - sistemaning holatini tekshirish
-	router.GET("/health", printHandler.CheckHealth)
+	// YANGI QUEUE ENDPOINTLAR
+	router.GET("/api/audio/queue/status", audioHandler.HandleQueueStatus)
+	router.POST("/api/audio/queue/clear", audioHandler.HandleClearQueue)
+	router.GET("/api/audio/health", audioHandler.HandleHealth)
 
-	// Asosiy chipta chop etish endpoint
-	router.POST("/print-ticket", printHandler.HandlePrintTicket)
+	// ==============================
+	// PROTECTED ROUTES (API Key bilan)
+	// ==============================
 
-	// Test chipta chop etish endpoint
-	router.POST("/print-test", printHandler.PrintTestTicket)
+	api := router.Group("/")
+	api.Use(handlers.PrintGuardMiddleware()) // Faqat bu group uchun
+	{
+		api.POST("/print-ticket", printHandler.HandlePrintTicket)
+	}
 
 	log.Printf("🌐 API route lar belgilandi")
 }

@@ -51,8 +51,8 @@ func (h *PrintHandler) HandlePrintTicket(c *gin.Context) {
 		return
 	}
 
-	log.Printf("🖨️  Chipta chop etish so'rovi: %s (Ustuvor: %v)",
-		req.QueueDisplay, req.IsPriority)
+	// log.Printf("🖨️  Chipta chop etish so'rovi: %s (Ustuvor: %v)",
+	// 	req.QueueDisplay, req.IsPriority)
 
 	// 2. CHIPTANI FORMATLASH
 	// TicketFormatter chipta ma'lumotlarini printer tushunadigan ESC/POS formatiga o'giradi
@@ -68,8 +68,8 @@ func (h *PrintHandler) HandlePrintTicket(c *gin.Context) {
 	}
 
 	// 4. MUVAFFAQIYATLI JAVOB QAYTARISH
-	log.Printf("✅ Chipta muvaffaqiyatli chop etildi: %s (%d bayt)",
-		req.QueueDisplay, bytesWritten)
+	// log.Printf("✅ Chipta muvaffaqiyatli chop etildi: %s (%d bayt)",
+	// 	req.QueueDisplay, bytesWritten)
 	h.sendSuccessResponse(c, req, bytesWritten)
 }
 
@@ -78,35 +78,35 @@ func (h *PrintHandler) HandlePrintTicket(c *gin.Context) {
 // - Standart test ma'lumotlari yaratadi
 // - Printerning ishlashini tekshiradi
 // - Tizimni sinovdan o'tkazish imkonini beradi
-func (h *PrintHandler) PrintTestTicket(c *gin.Context) {
-	// Test chipta ma'lumotlari - har doim bir xil
-	testTicket := models.PrintRequest{
-		TicketID:       "test-001",                      // Test chipta IDsi
-		ShiftID:        "test-shift",                    // Test smena IDsi
-		QueueNumber:    99,                              // Test navbat raqami
-		QueueDisplay:   "T-099",                         // Ekranda ko'rinadigan format
-		Status:         "waiting",                       // Navbat holati
-		IsPriority:     true,                            // Ustuvorlik holati
-		PriorityReason: "Test uchun",                    // Ustuvorlik sababi
-		Notes:          "Bu test chiptasi",              // Qo'shimcha eslatma
-		CreatedAt:      time.Now().Format(time.RFC3339), // Joriy vaqt
-	}
+// func (h *PrintHandler) PrintTestTicket(c *gin.Context) {
+// 	// Test chipta ma'lumotlari - har doim bir xil
+// 	testTicket := models.PrintRequest{
+// 		TicketID:       "test-001",                      // Test chipta IDsi
+// 		// ShiftID:        "test-shift",                    // Test smena IDsi
+// 		QueueNumber:    99,                              // Test navbat raqami
+// 		QueueDisplay:   "T-099",                         // Ekranda ko'rinadigan format
+// 		Status:         "waiting",                       // Navbat holati
+// 		IsPriority:     true,                            // Ustuvorlik holati
+// 		PriorityReason: "Test uchun",                    // Ustuvorlik sababi
+// 		Notes:          "Bu test chiptasi",              // Qo'shimcha eslatma
+// 		CreatedAt:      time.Now().Format(time.RFC3339), // Joriy vaqt
+// 	}
 
-	log.Printf("🧪 Test chipta chop etish: %s", testTicket.QueueDisplay)
+// 	log.Printf("🧪 Test chipta chop etish: %s", testTicket.QueueDisplay)
 
-	// Chiptani formatlash va chop etish
-	ticketData := h.ticketFormatter.Format(testTicket)
-	bytesWritten, err := h.printerService.Print(ticketData)
-	if err != nil {
-		h.sendErrorResponse(c, http.StatusInternalServerError, "TEST_PRINT_FAILED",
-			"Test chiptani chop etishda xato: "+err.Error())
-		return
-	}
+// 	// Chiptani formatlash va chop etish
+// 	ticketData := h.ticketFormatter.Format(testTicket)
+// 	bytesWritten, err := h.printerService.Print(ticketData)
+// 	if err != nil {
+// 		h.sendErrorResponse(c, http.StatusInternalServerError, "TEST_PRINT_FAILED",
+// 			"Test chiptani chop etishda xato: "+err.Error())
+// 		return
+// 	}
 
-	log.Printf("✅ Test chipta muvaffaqiyatli chop etildi: %s (%d bayt)",
-		testTicket.QueueDisplay, bytesWritten)
-	h.sendSuccessResponse(c, testTicket, bytesWritten)
-}
+// 	log.Printf("✅ Test chipta muvaffaqiyatli chop etildi: %s (%d bayt)",
+// 		testTicket.QueueDisplay, bytesWritten)
+// 	h.sendSuccessResponse(c, testTicket, bytesWritten)
+// }
 
 // ==============================
 // JAVOB YUBORISH METODLARI
@@ -132,19 +132,19 @@ func (h *PrintHandler) sendErrorResponse(c *gin.Context, status int, errorCode, 
 // bytesWritten: printerga yuborilgan baytlar soni
 func (h *PrintHandler) sendSuccessResponse(c *gin.Context, req models.PrintRequest, bytesWritten int) {
 	c.JSON(http.StatusOK, models.PrintResponse{
-		Status:    "success",                           // Javob holati
-		Message:   "Chipta muvaffaqiyatli chop etildi", // Muvaffaqiyat xabari
-		Printer:   h.printerService.PrinterName,        // Printer nomi
-		Bytes:     bytesWritten,                        // Chop etilgan baytlar
-		Ticket:    req.QueueDisplay,                    // Navbat raqami
-		Priority:  req.IsPriority,                      // Ustuvorlik holati
-		Timestamp: time.Now().Format(time.RFC3339),     // Chop etish vaqti
+		Status:  "success",                           // Javob holati
+		Message: "Chipta muvaffaqiyatli chop etildi", // Muvaffaqiyat xabari
+		Printer: h.printerService.PrinterName,        // Printer nomi
+		Bytes:   bytesWritten,                        // Chop etilgan baytlar
+		Ticket:  req.QueueNumber,                     // Navbat raqami
+		// Priority:  req.IsPriority,                      // Ustuvorlik holati
+		Timestamp: time.Now().Format(time.RFC3339), // Chop etish vaqti
 		Data: map[string]interface{}{ // Qo'shimcha ma'lumotlar
 			"ticket_id":     req.TicketID,
-			"queue_display": req.QueueDisplay,
+			"queue_display": req.QueueNumber,
 			"status":        req.Status,
-			"is_priority":   req.IsPriority,
-			"created_at":    req.CreatedAt,
+			// "is_priority":   req.IsPriority,
+			"created_at": req.CreatedAt,
 		},
 	})
 }

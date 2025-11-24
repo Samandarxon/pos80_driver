@@ -2,6 +2,45 @@ Ha, bundan ham oson yo'l bor! NSSM (Non-Sucking Service Manager) - bu eng oson v
 # NSSM bilan Windows Service - ENG OSON YO'L
 # ============================================
 
+
+# Auto-login ni yoqish
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+Set-ItemProperty $RegPath "AutoAdminLogon" -Value "1" -Type String
+Set-ItemProperty $RegPath "DefaultUsername" -Value "YourUsername" -Type String
+Set-ItemProperty $RegPath "DefaultPassword" -Value "YourPassword" -Type String
+Set-ItemProperty $RegPath "DefaultDomainName" -Value "$env:COMPUTERNAME" -Type String
+```
+
+
+# Server.exe ni avtomatik ishga tushirish
+$action = New-ScheduledTaskAction -Execute "R:\server.exe" -WorkingDirectory "R:\"
+
+
+**Yoki Registry Editor (regedit) orqali:**
+```
+1. Win + R → regedit
+2. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+3. Quyidagi qiymatlarni yaratish/o'zgartirish:
+   - AutoAdminLogon = 1
+   - DefaultUsername = SizningUsernamingiz
+   - DefaultPassword = SizningParolingiz
+
+
+
+# 1. Serviceni to'xtatish
+nssm stop POS80Printer
+
+# 2. Interactive rejimni yoqish
+nssm set POS80Printer Type SERVICE_INTERACTIVE_PROCESS
+
+# 3. "Allow service to interact with desktop" ni yoqish
+nssm set POS80Printer AppEnvironmentExtra DESKTOP=allow
+
+# 4. Serviceni qayta ishga tushirish
+nssm start POS80Printer
+
+
+
 # ============================================
 # 1. NSSM yuklab olish va o'rnatish
 # =========================Bu ENG OSON yo'l! 🎯
@@ -20,7 +59,8 @@ Yoki bir qatorda:
 cmdnssm install POS80Printer "C:\path\printer-server.exe"
 nssm start POS80Printer
 Boshqarish:
-cmdnssm start POS80Printer      # Ishga tushirish
+cmd
+nssm start POS80Printer      # Ishga tushirish
 nssm stop POS80Printer       # To'xtatish  
 nssm restart POS80Printer    # Restart
 nssm remove POS80Printer     # O'chirish

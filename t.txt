@@ -1,0 +1,70 @@
+D:\r>server.exe
+2025/11/24 20:54:36 📋 Konfiguratsiya yuklanmoqda...
+2025/11/24 20:54:36 🎵 Audio servis yaratilmoqda...
+2025/11/24 20:54:36 ✅ Audio Service yaratildi: ./sounds
+2025/11/24 20:54:36 ✅ Audio fayllar papkasi topildi
+2025/11/24 20:54:36 🚀 Audio Queue Service yaratilmoqda...
+2025/11/24 20:54:36 🚀 Audio Queue Service started with 1 workers
+2025/11/24 20:54:36 ✅ Audio Queue Service ishga tushdi
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:   export GIN_MODE=release
+ - using code:  gin.SetMode(gin.ReleaseMode)
+
+2025/11/24 20:54:36 👷 Worker 1 ishga tushdi
+2025/11/24 20:54:36 🚀 Audio Handler with Queue System ready!
+=================================================================================
+CORS middleware faollashtirildi
+=================================================================================
+2025/11/24 20:54:36 🔧 Middleware lar o'rnatildi
+[GIN-debug] GET    /api/audio/play           --> pos80/internal/api/handlers.(*AudioHandler).HandlePlayAudio-fm (3 handlers)
+[GIN-debug] POST   /api/audio/announcement   --> pos80/internal/api/handlers.(*AudioHandler).HandleAudioAnnouncement-fm (3 handlers)
+[GIN-debug] GET    /api/audio/queue/status   --> pos80/internal/api/handlers.(*AudioHandler).HandleQueueStatus-fm (3 handlers)
+[GIN-debug] POST   /api/audio/queue/clear    --> pos80/internal/api/handlers.(*AudioHandler).HandleClearQueue-fm (3 handlers)
+[GIN-debug] GET    /api/audio/health         --> pos80/internal/api/handlers.(*AudioHandler).HandleHealth-fm (3 handlers)
+[GIN-debug] POST   /print-ticket             --> pos80/internal/api/handlers.(*PrintHandler).HandlePrintTicket-fm (4 handlers)
+2025/11/24 20:54:36 🌐 API route lar belgilandi
+2025/11/24 20:54:36 🚀 Hospital Ticket Printer v2.0.0 ishga tushmoqda...
+2025/11/24 20:54:36 📍 Server manzili: http://0.0.0.0:8080
+2025/11/24 20:54:36 🖨️  Default printer: POS80 Printer
+2025/11/24 20:54:36 💻 Platforma: windows
+2025/11/24 20:54:36 📊 Rejim: Production
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-3 -> 103 (navbat: 0)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-4 -> 104 (navbat: 2)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-5 -> 105 (navbat: 1)
+2025/11/24 20:54:52 🎯 Worker 1 task bajarayapti: A-3 -> 103 (qolgan: 2)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-1 -> 101 (navbat: 4)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-6 -> 106 (navbat: 3)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-2 -> 102 (navbat: 5)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-7 -> 107 (navbat: 6)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-8 -> 108 (navbat: 7)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-10 -> 1010 (navbat: 8)
+2025/11/24 20:54:52 ✅ [Req-5] Navbatga qo'shildi: A-3 (navbat: 6)
+2025/11/24 20:54:52 📥 Audio task qo'shildi: A-9 -> 109 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-2] Navbatga qo'shildi: A-4 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-6] Navbatga qo'shildi: A-5 (navbat: 9)
+2025/11/24 20:54:52
+🎵 ===== AUDIO E'LON BOSHLANDI =====
+2025/11/24 20:54:52 📋 Navbat: A-3, Xona: 103
+2025/11/24 20:54:52 ✅ [Req-1] Navbatga qo'shildi: A-1 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-3] Navbatga qo'shildi: A-6 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-4] Navbatga qo'shildi: A-2 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-7] Navbatga qo'shildi: A-7 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-8] Navbatga qo'shildi: A-8 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-9] Navbatga qo'shildi: A-10 (navbat: 9)
+2025/11/24 20:54:52 ✅ [Req-10] Navbatga qo'shildi: A-9 (navbat: 9)
+2025/11/24 20:54:52 🔢 Ajratilgan raqam: 3
+2025/11/24 20:55:21 📥 Audio task qo'shildi: A-2 -> 102 (navbat: 10)
+2025/11/24 20:55:21 📥 Audio task qo'shildi: A-1 -> 101 (navbat: 11)
+2025/11/24 20:55:21 ✅ [Req-11] Navbatga qo'shildi: A-2 (navbat: 11)
+2025/11/24 20:55:21 📥 Audio task qo'shildi: A-3 -> 103 (navbat: 12)
+2025/11/24 20:55:21 📥 Audio task qo'shildi: A-5 -> 105 (navbat: 14)
+2025/11/24 20:55:21 📥 Audio task qo'shildi: A-4 -> 104 (navbat: 13)
+2025/11/24 20:55:21 ✅ [Req-12] Navbatga qo'shildi: A-1 (navbat: 12)
+2025/11/24 20:55:21 ✅ [Req-13] Navbatga qo'shildi: A-3 (navbat: 14)
+2025/11/24 20:55:21 ✅ [Req-15] Navbatga qo'shildi: A-5 (navbat: 14)
+2025/11/24 20:55:21 ✅ [Req-14] Navbatga qo'shildi: A-4 (navbat: 14)
+2025/11/24 20:56:05 📥 Audio task qo'shildi: A-15 -> 103 (navbat: 15)
+2025/11/24 20:56:05 ✅ [Req-16] Navbatga qo'shildi: A-15 (navbat: 15)

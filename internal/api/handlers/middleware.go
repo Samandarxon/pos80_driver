@@ -6,11 +6,13 @@
 package handlers
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -203,4 +205,26 @@ func CORSMiddleware() gin.HandlerFunc {
 		// Keyingi middleware/handlerni chaqirish
 		c.Next()
 	}
+}
+
+func Cors() gin.HandlerFunc {
+	fmt.Println("=================================================================================")
+	fmt.Println("CORS middleware faollashtirildi")
+	fmt.Println("=================================================================================")
+	return cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://192.168.100.167:3000",
+			"http://192.168.100.167",
+			"http://127.0.0.1:5500",       // VS Code Live Server
+			"http://192.168.100.125:5500", // VS Code Live Server
+			"http://localhost:5500",       // Localhost variant
+			"http://localhost:3000",       // React/Next.js development
+			"*",                           // BARCHA domenlar (faqat development uchun!)
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Requested-With", "X-API-Key"}, // X-API-Key qo'shing!
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
 }

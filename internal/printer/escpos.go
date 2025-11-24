@@ -7,6 +7,7 @@ package printer
 
 import (
 	"bytes"
+	"fmt"
 	"pos80/internal/models"
 	"time"
 )
@@ -32,84 +33,69 @@ func NewTicketFormatter() *TicketFormatter {
 	return &TicketFormatter{}
 }
 
-// Format chipta ma'lumotlarini ESC/POS formatiga o'giradi.
-// Bu asosiy metod bo'lib, barcha printer komandalari va matnni birlashtiradi.
-//
-// ESC/POS bu termal printerlar uchun standart protokol bo'lib, quyidagilarni boshqaradi:
-// - Matn formati (o'lcham, qalinlik, markazlashtirish)
-// - Qog'oz harakati (chiziq uzish, kesish)
-// - Printer sozlamalari (reset, encoding)
-//
-// Parametr: req - chop etiladigan chipta ma'lumotlari
-// Qaytaradi: []byte - printerga yuboriladigan tayyor byte massivi
 func (tf *TicketFormatter) Format(req models.PrintRequest) []byte {
 	buffer := bytes.NewBuffer(nil)
 
-	// Printerni ishga tushirish - bu muhim bosqich
-	// ESC @ - printerni default holatiga o'rnatadi, barcha oldingi sozlamalarni bekor qiladi
+	// Printerni reset qilish
 	buffer.Write([]byte{0x1B, 0x40})
 
-	// SARLAVHA - MARKAZDA, KATTA HARFLAR
-	// Kasalxona identifikatsiyasi uchun aniq va ko'rinadigan sarlavha
-	tf.writeCentered(buffer)   // Markazga joylashtirish
-	tf.writeSize(buffer, 2, 2) // 2x2 o'lcham (katta)
-	buffer.WriteString("SHIFOXONA NAVBATI\n")
-	tf.writeSize(buffer, 1, 1) // Oddiy o'lchamga qaytarish
-	buffer.WriteString("====================\n\n")
-
-	// NAVBAT RAQAMI - ENG KATTA KO'RSATILADI
-	// Bemorga eng muhim ma'lumot - ularning navbat raqami
-	tf.writeCentered(buffer) // Markazga joylashtirish
+	// SARLAVHA
+	tf.writeCentered(buffer)
 	tf.writeBold(buffer, true)
-	tf.writeSize(buffer, 2, 2) // 3x3 o'lcham (juda katta)
-	buffer.WriteString(req.QueueDisplay + "\n")
-	tf.writeSize(buffer, 1, 1) // Oddiy o'lchamga qaytarish
-	buffer.WriteByte('\n')     // Bo'sh joy
+	tf.writeSize(buffer, 1, 1)
+	buffer.WriteString("MEDICAL DEPARTMENT OF THE MAIN DIRECTORATE\n")
+	buffer.WriteString("ICHKI ISHLAR BOSH BOSHQARMASI\n")
+	buffer.WriteString("TIBBIYOT BO'LIMI\n")
+	tf.resetFormatting(buffer) // Barcha formatni qayta o'rnatish
 
-	// USTUVORLIK BO'LIMI - AGAR USTUVOR NAVBAT BO'LSA
-	// Nogironlar, homilador ayollar, qariyalar uchun maxsus belgi
-	if req.IsPriority {
-		tf.writeCentered(buffer)   // Markazga joylashtirish
-		tf.writeBold(buffer, true) // Qalin matn yoqish
-		buffer.WriteString("USTUVOR NAVBAT\n")
-		tf.writeBold(buffer, false) // Qalin matn o'chirish
+	tf.writeCentered(buffer)
+	buffer.WriteString("========================================\n\n")
 
-		// Ustuvorlik sababi - bu ma'lumotni kiritish ixtiyoriy
-		if req.PriorityReason != "" {
-			buffer.WriteString("Sabab: " + req.PriorityReason + "\n")
-		}
-		buffer.WriteByte('\n') // Bo'sh joy
-	}
+	// BO'LIM NOMI
+	tf.writeCentered(buffer)
+	tf.writeBold(buffer, true)
+	tf.writeDoubleStrike(buffer, true)
+	tf.writeSize(buffer, 2, 2)
+	buffer.WriteString(req.DepartmentName + "\n")
+	tf.resetFormatting(buffer)
+	buffer.WriteByte('\n')
 
-	// ASOSIY MA'LUMOTLAR - CHAP TOMONDAN
-	// Barcha kerakli ma'lumotlar aniq va tartibli ko'rsatiladi
-	tf.writeCentered(buffer) // Chap tomonga joylashtirish
-	buffer.WriteString("Navbat: " + req.QueueDisplay + "\n")
-	buffer.WriteString("Holati: " + tf.getStatusText(req.Status) + "\n")
+	// NAVBAT RAQAMI
+	tf.writeCentered(buffer)
+	tf.writeBold(buffer, true)
+	tf.writeDoubleStrike(buffer, true)
+	tf.writeSize(buffer, 2, 2)
+	buffer.WriteString(req.QueueNumber + "\n")
+	tf.resetFormatting(buffer)
+	buffer.WriteByte('\n')
 
-	// Eslatmalar - bu ixtiyoriy maydon
-	// Shifokor yoki registrator qo'shimcha ma'lumot kiritishi mumkin
-	if req.Notes != "" {
-		buffer.WriteString("Eslatma: " + req.Notes + "\n")
-	}
+	// ASOSIY MA'LUMOTLAR
+	// tf.writeLeftAligned(buffer)
+	tf.writeCentered(buffer)
+	buffer.WriteString(req.RoomNumber + "-xona \n")
+	buffer.WriteString(formatUzbek(time.Now()) + "\n\n")
 
-	// Sana formati - faqat sana ko'rsatiladi (vaqt emas)
-	buffer.WriteString("Sana: " + tf.formatDate(req.CreatedAt) + "\n\n")
+	// PASTKI QISM
+	tf.writeCentered(buffer)
+	tf.writeBold(buffer, true)
+	buffer.WriteString("========================================\n")
+	buffer.WriteString("Iltimos navbatingizni kuting\n\n\n\n")
+	tf.resetFormatting(buffer)
 
-	// PASTKI QISM - MARKAZDA
-	// Bemorga kerakli ko'rsatmalar
-	tf.writeCentered(buffer) // Markazga joylashtirish
-	buffer.WriteString("====================\n")
-	buffer.WriteString("Navbatingizni kuting\n")
-	buffer.WriteString("va ekranni kuzating\n")
-
-	// QOG'OZNI TAYYORLASH VA KESISH
-	// 3 qator bo'sh joy - chiptani osongina uzish uchun
+	// QOG'OZNI KESISH
 	buffer.Write([]byte("\n\n\n"))
-	// GS V 0 - qog'ozni to'liq kesish (full cut)
 	buffer.Write([]byte{0x1D, 0x56, 0x00})
 
 	return buffer.Bytes()
+}
+
+// Yangi yordamchi metod - barcha formatni qayta o'rnatadi
+func (tf *TicketFormatter) resetFormatting(buffer *bytes.Buffer) {
+	tf.writeSize(buffer, 1, 1)
+	tf.writeBold(buffer, false)
+	tf.writeDoubleStrike(buffer, false)
+	tf.writeUnderline(buffer, 0)
+	tf.writeLeftAligned(buffer)
 }
 
 // ==============================
@@ -203,5 +189,66 @@ func (tf *TicketFormatter) formatDate(dateStr string) string {
 		return dateStr[:10] // Faqat sana qismini olish
 	}
 	// Agar sana noto'g'ri formatda bo'lsa, joriy sana ishlatiladi
-	return time.Now().Format("2006-01-02")
+	return formatUzbek(time.Now())
+}
+
+// writeDoubleStrike matnni ikki marta bosish (yanada qalin)
+// ESC G n - double strike rejimini boshqaradi
+func (tf *TicketFormatter) writeDoubleStrike(buffer *bytes.Buffer, enable bool) {
+	if enable {
+		buffer.Write([]byte{0x1B, 0x47, 0x01}) // Double strike yoqish
+	} else {
+		buffer.Write([]byte{0x1B, 0x47, 0x00}) // Double strike o'chirish
+	}
+}
+
+// writeUnderline tagiga chizish (0=off, 1=1 dot, 2=2 dots)
+// ESC - n - tagiga chizish rejimini boshqaradi
+func (tf *TicketFormatter) writeUnderline(buffer *bytes.Buffer, mode int) {
+	if mode < 0 {
+		mode = 0
+	}
+	if mode > 2 {
+		mode = 2
+	}
+	buffer.Write([]byte{0x1B, 0x2D, byte(mode)})
+}
+
+// writeInvert oq matnni qora fonda ko'rsatish
+// GS B n - inverse printing
+func (tf *TicketFormatter) writeInvert(buffer *bytes.Buffer, enable bool) {
+	if enable {
+		buffer.Write([]byte{0x1D, 0x42, 0x01}) // Invert yoqish
+	} else {
+		buffer.Write([]byte{0x1D, 0x42, 0x00}) // Invert o'chirish
+	}
+}
+
+// formatUzbek sanani o'zbek tilida formatlaydi
+func formatUzbek(t time.Time) string {
+	// O'zbek tilida oylar
+	oylar := map[time.Month]string{
+		time.January:   "Yanvar",
+		time.February:  "Fevral",
+		time.March:     "Mart",
+		time.April:     "Aprel",
+		time.May:       "May",
+		time.June:      "Iyun",
+		time.July:      "Iyul",
+		time.August:    "Avgust",
+		time.September: "Sentabr",
+		time.October:   "Oktabr",
+		time.November:  "Noyabr",
+		time.December:  "Dekabr",
+	}
+
+	// Format: Noyabr 24 2025, 14:30:00
+	return fmt.Sprintf("%s %d %d, %02d:%02d:%02d",
+		oylar[t.Month()],
+		t.Day(),
+		t.Year(),
+		t.Hour(),
+		t.Minute(),
+		t.Second(),
+	)
 }

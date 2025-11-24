@@ -16,7 +16,7 @@ curl -X POST http://192.168.100.84:8080/print-ticket \
   "created_at": "2025-11-19 15:08:16.530089"
 }'  
 
-
+C:\Program Files\printerDriver
 curl -X POST http://192.168.100.84:8085/print-ticket \             
   -H "Content-Type: application/json" \
   -d '{
@@ -64,11 +64,32 @@ curl -X POST http://192.168.100.84:8085/print-ticket \
 
 
 
-
+for i in {1..10}; do
+  curl -X POST http://192.168.100.86:8080/api/audio/announcement \
+    -H "Content-Type: application/json" \
+    -d "{\"ticket_id\":\"$i\",\"room_number\":\"10$i\",\"queue_number\":\"A-$i\"}" &
+done
 
 smbclient //192.168.100.84/r -N -c "get text.txt"  windowsdan ubuntuga fayl yuklash
 smbclient //192.168.100.84/r -N -c "put server.exe" ubuntudan windowsga fayl upload qilish
 
-GOOS=windows GOARCH=amd64 go build -o server.exe cmd/server/main.go
 
 
+
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+
+@echo off
+echo 🛠️ Frontend Service sozlanmoqda...
+
+:: NSSM orqali service yaratish
+nssm install POS80Frontend "C:\Program Files\nodejs\node.exe"
+nssm set POS80Frontend AppParameters "C:\path\to\your\react\app\node_modules\react-scripts\bin\react-scripts.js"
+nssm set POS80Frontend AppDirectory "C:\path\to\your\react\app"
+nssm set POS80Frontend AppStdout "C:\logs\frontend.log"
+nssm set POS80Frontend AppStderr "C:\logs\frontend-error.log"
+nssm set POS80Frontend Start SERVICE_AUTO_START
+nssm set POS80Frontend ObjectName "LocalSystem"
+
+echo ✅ POS80Frontend service yaratildi
+echo 🔧 Service ni ishga tushirish: nssm start POS80Frontend
