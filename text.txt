@@ -93,3 +93,25 @@ nssm set POS80Frontend ObjectName "LocalSystem"
 
 echo ✅ POS80Frontend service yaratildi
 echo 🔧 Service ni ishga tushirish: nssm start POS80Frontend
+
+
+
+for i in {20..30}; do
+  # Xona seriyasini aniqlash
+  if [ $i -lt 25 ]; then
+    # 20-24 → 201-205
+    room_num=$((i - 19))
+    room="20$room_num"
+  elif [ $i -lt 30 ]; then
+    # 25-29 → 301-305
+    room_num=$((i - 24))
+    room="30$room_num"
+  else
+    # 30 → 201
+    room="201"
+  fi
+  
+  curl -X POST http://192.168.100.86:8080/api/audio/announcement \
+    -H "Content-Type: application/json" \
+    -d "{\"ticket_id\":\"$i\",\"room_number\":\"$room\",\"queue_number\":\"A-$i\"}" &
+done
