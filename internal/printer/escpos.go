@@ -43,8 +43,9 @@ func (tf *TicketFormatter) Format(req models.PrintRequest) []byte {
 	tf.writeCentered(buffer)
 	tf.writeBold(buffer, true)
 	tf.writeSize(buffer, 1, 1)
-	buffer.WriteString("MEDICAL DEPARTMENT OF THE MAIN DIRECTORATE\n")
-	buffer.WriteString("ICHKI ISHLAR BOSH BOSHQARMASI\n")
+	buffer.WriteString("FERGANA REGION INTERNAL AFFAIRS DEPARTMENT MEDICAL DEPARTMENT\n")
+	buffer.WriteString("MEDICAL DEPARTMENT\n")
+	buffer.WriteString("FARG'ONA VILOYAT ICHKI ISHLAR BOSHQARMASI\n")
 	buffer.WriteString("TIBBIYOT BO'LIMI\n")
 	tf.resetFormatting(buffer) // Barcha formatni qayta o'rnatish
 

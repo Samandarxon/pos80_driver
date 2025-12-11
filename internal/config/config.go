@@ -13,7 +13,8 @@ const (
 	// DefaultPrinterName - standart printer nomi
 	// Bu nom Windows printer manager'da ko'rsatilgan printer nomiga mos kelishi kerak
 	// Misol: "POS80", "XP-58", "Thermal Printer"
-	DefaultPrinterName = "POS80 Printer"
+	// DefaultPrinterName = "POS80 Printer"
+	DefaultPrinterName = "XP-80C"
 
 	// ServicePort - HTTP server ishlaydigan port
 	// Format: ":port" - oldida ikki nuqta bilan

@@ -1,0 +1,137 @@
+C:\Program Files\.pr
+
+
+# ============================================
+# POS80 PRINTER - TO'LIQ AVTOMATIK SOZLASH
+# ============================================
+
+Write-Host ""
+Write-Host "POS80 PRINTER AVTOMATIK SOZLASH"
+Write-Host ""
+
+# 1. Fayl tekshirish
+Write-Host "[1/4] Fayllar tekshirilmoqda..."
+$ServerPath = "C:\Program Files\.pr\server.exe"
+if (Test-Path $ServerPath) {
+    Write-Host "  server.exe topildi: $ServerPath"
+} else {
+    Write-Host "  ERROR: server.exe topilmadi!"
+    Write-Host "  Uni C:\Program Files\.pr\ ichiga joylashtiring."
+    Read-Host "Davom etish uchun Enter bosing"
+    exit 1
+}
+
+$SoundsPath = "C:\Program Files\.pr\sounds"
+if (Test-Path $SoundsPath) {
+    Write-Host "  sounds/ papkasi topildi"
+} else {
+    Write-Host "  WARNING: sounds papkasi topilmadi"
+}
+
+Write-Host ""
+
+# 2. Eski servislarni o'chirish
+Write-Host "[2/4] Eski xizmatlar tekshirilmoqda..."
+
+$NSSMService = Get-Service -Name "POS80Printer" -ErrorAction SilentlyContinue
+if ($NSSMService) {
+    Write-Host "  NSSM service topildi, to'xtatilmoqda..."
+    Stop-Service -Name "POS80Printer" -Force -ErrorAction SilentlyContinue
+
+    $NSSMPath = "C:\Program Files\.pr\nssm.exe"
+    if (Test-Path $NSSMPath) {
+        & $NSSMPath stop POS80Printer 2>$null
+        & $NSSMPath remove POS80Printer confirm 2>$null
+        Write-Host "  Eski NSSM service o'chirildi"
+    }
+} else {
+    Write-Host "  Eski service topilmadi"
+}
+
+$ExistingTask = Get-ScheduledTask -TaskName "POS80Printer" -ErrorAction SilentlyContinue
+if ($ExistingTask) {
+    Write-Host "  Eski Task Scheduler topildi, o'chirilmoqda..."
+    Unregister-ScheduledTask -TaskName "POS80Printer" -Confirm:$false
+    Write-Host "  Eski task o'chirildi"
+}
+
+Write-Host ""
+
+# 3. Yangi task yaratish
+Write-Host "[3/4] Task Scheduler sozlanmoqda..."
+
+$TaskName = "POS80Printer"
+
+$Action = New-ScheduledTaskAction `
+    -Execute $ServerPath `
+    -WorkingDirectory "C:\Program Files\.pr\"
+
+$Trigger = New-ScheduledTaskTrigger -AtStartup
+
+$CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$Principal = New-ScheduledTaskPrincipal `
+    -UserId $CurrentUser `
+    -LogonType Interactive `
+    -RunLevel Highest
+
+$Settings = New-ScheduledTaskSettingsSet `
+    -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries `
+    -StartWhenAvailable `
+    -RestartCount 3 `
+    -RestartInterval (New-TimeSpan -Minutes 1) `
+    -ExecutionTimeLimit (New-TimeSpan -Hours 0)
+
+try {
+    Register-ScheduledTask `
+        -TaskName $TaskName `
+        -Action $Action `
+        -Trigger $Trigger `
+        -Principal $Principal `
+        -Settings $Settings `
+        -Description "POS80 Printer Service" `
+        -ErrorAction Stop | Out-Null
+
+    Write-Host "  Task Scheduler sozlandi."
+} catch {
+    Write-Host "Xato: $_"
+    exit 1
+}
+
+Write-Host ""
+
+# 4. Auto-login
+Write-Host "[4/4] Auto-login sozlash (ixtiyoriy)"
+$EnableAutoLogin = Read-Host "Auto-login yoqilsinmi? (Y/N)"
+
+if ($EnableAutoLogin -eq "Y" -or $EnableAutoLogin -eq "y") {
+
+    $DefaultUsername = $env:USERNAME
+    Write-Host "Username: $DefaultUsername"
+
+    $SecurePassword = Read-Host "Password (bo'sh bo'lsa Enter)" -AsSecureString
+    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)
+    $Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+    $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+
+    Set-ItemProperty $RegPath "AutoAdminLogon" -Value "1" -Type String
+    Set-ItemProperty $RegPath "DefaultUsername" -Value $DefaultUsername -Type String
+    Set-ItemProperty $RegPath "DefaultDomainName" -Value $env:COMPUTERNAME -Type String
+    Set-ItemProperty $RegPath "AutoLogonCount" -Value "999999" -Type DWord
+
+    Set-ItemProperty $RegPath "DefaultPassword" -Value $Password -Type String
+
+    Write-Host "Auto-login faollashtirildi."
+} else {
+    Write-Host "Auto-login o'tkazib yuborildi."
+}
+
+Write-Host ""
+Write-Host "SOZLASH TUGADI!"
+Write-Host ""
+
+$Restart = Read-Host "Kompyuterni hozir restart qilaymi? (Y/N)"
+if ($Restart -eq "Y" -or $Restart -eq "y") {
+    shutdown /r /t 10 /c "POS80 Printer Service faollashtirilmoqda"
+}

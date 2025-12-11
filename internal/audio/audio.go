@@ -117,6 +117,25 @@ func (a *AudioService) PlayAudio(filename string) error {
 	}
 }
 
+// 🎵 Fayl formatini avtomatik aniqlash (.mp3 yoki .wav)
+func (a *AudioService) findAudioFile(baseName string) (string, error) {
+	// Avval .mp3 ni tekshiramiz
+	mp3Path := baseName + ".mp3"
+	fullMp3Path := filepath.Join(a.basePath, mp3Path)
+	if _, err := os.Stat(fullMp3Path); err == nil {
+		return mp3Path, nil
+	}
+
+	// Keyin .wav ni tekshiramiz
+	wavPath := baseName + ".wav"
+	fullWavPath := filepath.Join(a.basePath, wavPath)
+	if _, err := os.Stat(fullWavPath); err == nil {
+		return wavPath, nil
+	}
+
+	return "", fmt.Errorf("audio fayl topilmadi: %s (.mp3 yoki .wav)", baseName)
+}
+
 func (a *AudioService) PlayNumber(number int) error {
 	if number <= 0 {
 		return fmt.Errorf("noto'g'ri raqam: %d", number)
@@ -124,35 +143,137 @@ func (a *AudioService) PlayNumber(number int) error {
 
 	switch {
 	case number == 10:
-		return a.PlayAudio("numbers/10.mp3")
-	case number <= 9:
-		return a.PlayAudio(fmt.Sprintf("numbers/%d.mp3", number))
-	case number <= 19:
-		if err := a.PlayAudio("numbers/10a.mp3"); err != nil {
+		audioFile, err := a.findAudioFile("numbers/10a")
+		if err != nil {
 			return err
 		}
-		return a.PlayAudio(fmt.Sprintf("numbers/%d.mp3", number-10))
+		return a.PlayAudio(audioFile)
+	case number <= 9:
+		audioFile, err := a.findAudioFile(fmt.Sprintf("numbers/%d", number))
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number <= 19:
+		audioFile, err := a.findAudioFile("numbers/10")
+		if err != nil {
+			return err
+		}
+		if err := a.PlayAudio(audioFile); err != nil {
+			return err
+		}
+
+		onesFile, err := a.findAudioFile(fmt.Sprintf("numbers/%d", number-10))
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(onesFile)
+	case number == 20:
+		audioFile, err := a.findAudioFile("numbers/20a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 30:
+		audioFile, err := a.findAudioFile("numbers/30a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 40:
+		audioFile, err := a.findAudioFile("numbers/40a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 50:
+		audioFile, err := a.findAudioFile("numbers/50a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 60:
+		audioFile, err := a.findAudioFile("numbers/60a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 70:
+		audioFile, err := a.findAudioFile("numbers/70a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 80:
+		audioFile, err := a.findAudioFile("numbers/80a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number == 90:
+		audioFile, err := a.findAudioFile("numbers/90a")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
 	case number <= 99:
 		tens := (number / 10) * 10
 		ones := number % 10
-		if err := a.PlayAudio(fmt.Sprintf("numbers/%da.mp3", tens)); err != nil {
+
+		tensFile, err := a.findAudioFile(fmt.Sprintf("numbers/%d", tens))
+		if err != nil {
 			return err
 		}
+		if err := a.PlayAudio(tensFile); err != nil {
+			return err
+		}
+
 		if ones > 0 {
-			return a.PlayAudio(fmt.Sprintf("numbers/%d.mp3", ones))
+			onesFile, err := a.findAudioFile(fmt.Sprintf("numbers/%d", ones))
+			if err != nil {
+				return err
+			}
+			return a.PlayAudio(onesFile)
+		}
+		return nil
+	case number == 100:
+		audioFile, err := a.findAudioFile("numbers/100")
+		if err != nil {
+			return err
+		}
+		return a.PlayAudio(audioFile)
+	case number <= 199:
+		// 101-199: "yuz" + raqam
+		audioFile, err := a.findAudioFile("numbers/100")
+		if err != nil {
+			return err
+		}
+		if err := a.PlayAudio(audioFile); err != nil {
+			return err
+		}
+		if number > 100 {
+			return a.PlayNumber(number - 100)
 		}
 		return nil
 	default:
-		return a.PlayAudio(fmt.Sprintf("numbers/%d.mp3", number))
+		return fmt.Errorf("100 dan katta raqamlar uchun audio fayl yo'q: %d", number)
 	}
 }
 
 func (a *AudioService) PlayRoomNumber(room string) error {
-	return a.PlayAudio(fmt.Sprintf("numbers/%s-xona.mp3", room))
+	audioFile, err := a.findAudioFile(fmt.Sprintf("numbers/%s-xona", room))
+	if err != nil {
+		return err
+	}
+	return a.PlayAudio(audioFile)
 }
 
 func (a *AudioService) PlayPhrase(phrase string) error {
-	return a.PlayAudio(fmt.Sprintf("phrases/%s.mp3", phrase))
+	audioFile, err := a.findAudioFile(fmt.Sprintf("phrases/%s", phrase))
+	if err != nil {
+		return err
+	}
+	return a.PlayAudio(audioFile)
 }
 
 func (a *AudioService) PlayAnnouncement(queueNumber string, roomNumber string) error {

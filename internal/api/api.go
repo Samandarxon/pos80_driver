@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"pos80/internal/api/handlers"
 	"pos80/internal/audio"
@@ -24,6 +25,14 @@ func SetupRouter(router *gin.Engine, audioService *audio.AudioService, audioQueu
 	router.Use(handlers.Cors()) // 2. CORS (birinchi bo'lishi kerak!)
 
 	log.Printf("🔧 Middleware lar o'rnatildi")
+
+	router.GET("/", func(c *gin.Context) {
+		fmt.Println("Health check endpoint called")
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"message": "success",
+		})
+	})
 
 	// ==============================
 	// PUBLIC ROUTES (API Key'siz)

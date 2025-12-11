@@ -19,24 +19,24 @@ Write-Host "📁 [1/4] Fayllar tekshirilmoqda..." -ForegroundColor Yellow
 Write-Host ""
 
 # Server fayli
-$ServerPath = "C:\Program Files\printerDriver\server.exe"
+$ServerPath = "C:\Program Files\.pr\server.exe"
 if (Test-Path $ServerPath) {
     Write-Host "  ✅ server.exe topildi: $ServerPath" -ForegroundColor Green
 } else {
     Write-Host "  ❌ ERROR: server.exe topilmadi!" -ForegroundColor Red
-    Write-Host "  📝 Iltimos, server.exe ni C:\Program Files\printerDriver\ ga joylashtiring" -ForegroundColor Yellow
+    Write-Host "  📝 Iltimos, server.exe ni C:\Program Files\.pr\ ga joylashtiring" -ForegroundColor Yellow
     Write-Host ""
     Read-Host "Davom etish uchun Enter bosing (chiqish uchun Ctrl+C)"
     exit 1
 }
 
 # Sounds papkasi
-$SoundsPath = "C:\Program Files\printerDriver\sounds"
+$SoundsPath = "C:\Program Files\.pr\sounds"
 if (Test-Path $SoundsPath) {
     Write-Host "  ✅ sounds/ papkasi topildi" -ForegroundColor Green
 } else {
     Write-Host "  ⚠️  WARNING: sounds/ papkasi topilmadi!" -ForegroundColor Yellow
-    Write-Host "  📝 Audio ishlamaydi, sounds/ papkasini C:\Program Files\printerDriver\ ga joylashtiring" -ForegroundColor Yellow
+    Write-Host "  📝 Audio ishlamaydi, sounds/ papkasini C:\Program Files\.pr\ ga joylashtiring" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -55,7 +55,7 @@ if ($NSSMService) {
     Stop-Service -Name "POS80Printer" -Force -ErrorAction SilentlyContinue
     
     # NSSM.exe bilan o'chirish
-    $NSSMPath = "C:\Program Files\printerDriver\nssm.exe"
+    $NSSMPath = "C:\Program Files\.pr\nssm.exe"
     if (Test-Path $NSSMPath) {
         & $NSSMPath stop POS80Printer 2>$null
         & $NSSMPath remove POS80Printer confirm 2>$null
@@ -87,7 +87,7 @@ $TaskName = "POS80Printer"
 # Action: Server.exe ni ishga tushirish
 $Action = New-ScheduledTaskAction `
     -Execute $ServerPath `
-    -WorkingDirectory "C:\Program Files\printerDriver\"
+    -WorkingDirectory "C:\Program Files\.pr\"
 
 # Trigger: Kompyuter yonganda ishga tushish
 $Trigger = New-ScheduledTaskTrigger -AtStartup

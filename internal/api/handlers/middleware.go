@@ -88,6 +88,10 @@ func PrintGuardMiddleware() gin.HandlerFunc {
 
 		// 1. API Key check
 		apiKey := c.GetHeader("X-API-Key")
+		fmt.Println("==================================================================================")
+		fmt.Println(apiKey)
+		fmt.Println("==================================================================================")
+
 		if apiKey != allowedAPIKey {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
@@ -214,8 +218,14 @@ func Cors() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins: []string{
 			"http://192.168.100.167:3000",
+			"http://192.168.100.240",
+			"http://192.168.100.240:8085",
 			"http://192.168.100.167",
 			"http://127.0.0.1:5500",       // VS Code Live Server
+			"http://127.0.0.1:3000",       // VS Code Live Server
+			"http://127.0.0.1",            // VS Code Live Server
+			"http://0.0.0.0:3000",         // VS Code Live Server
+			"http://0.0.0.0",              // VS Code Live Server
 			"http://192.168.100.125:5500", // VS Code Live Server
 			"http://localhost:5500",       // Localhost variant
 			"http://localhost:3000",       // React/Next.js development

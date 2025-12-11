@@ -1,0 +1,66 @@
+{"doctors": [
+    {
+      "id": "1",
+      "name": "Mamadjonov Maqsudjon Madamindjanovich",
+      "specialization": "Oftalmolog",
+      "room": "316-xona"
+      
+    },
+    {
+      "id": "2",
+      "name": "Kamalov Zakirjon Abbosovich",
+      "specialization": "Otorinolaringolog",
+      "room": "103-xona"
+    },
+    {
+      "id": "3",
+      "name": "Mullajanov Obbosali Madvaliyevich",
+      "specialization": "Dermatovenerolog",
+      "room": "315-xona"
+    },
+    {
+      "id": "4",
+      "name": "Saidamatov Abdug'affor Xalilovich",
+      "specialization": "XTK ekspert-shifokor jarroh",
+      "room": "304-xona"
+    },
+    {
+      "id": "5",
+      "name": "Maxsitaliyev Davlatali",
+      "specialization": "Nevrolog",
+      "room": "314-xona"
+    },
+    {
+      "id": "6",
+      "name": "Qobulov Ilhomjon Iminovich",
+      "specialization": "Stomatolog",
+      "room": "102-xona"
+    },
+    {
+      "id": "7",
+      "name": "Ganiyev Muso Xalilovich",
+      "specialization": "XTK ekspert-shifokor terapevt",
+      "room": "307-xona"
+    },
+    {
+      "id": "8",
+      "name": "Madumanov Akmaljon Azimjonovich",
+      "specialization": "HTK Psixofiziologik holatini o'rganish",
+      "room": "114-xona"
+    },
+    {
+      "id": "9",
+      "name": "Gafurova Gulnozxon Ibragimovna",
+      "specialization": "XTK ekspert shifokor psixiatr",
+      "room": "109-xona"
+    }
+  ]
+}
+
+
+host:port/doctor/id
+misol uchun localhost:8080/doctor/1
+yoki 10.20.21.12:8080/doctor/1
+bu yerda id - shifokorning identifikatsiya raqami
+
+
